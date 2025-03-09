@@ -5,8 +5,8 @@ This script configures a Linux system to run as a kiosk. It sets up an automatic
 
 ## Prerequisites
 - A fresh installation of `Alma Linux` (Minimal Install or Custom Operating System).
-- A user account named kiosk (ensure this user exists before running the script).
-- root privileges to run administrative commands (Root enabled).
+- A user account named `kiosk` (ensure this user exists before running the script).
+- `root privileges` to run administrative commands (Root enabled).
 
 1. **Update the System:**
    The script run `dnf update -y` to update the system.
