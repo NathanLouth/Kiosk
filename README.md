@@ -128,7 +128,7 @@ The script supports the following optional command-line arguments for customizin
         Hides the mouse cursor 
 
     --no-tearfree
-        Disable TearFree
+        Disable TearFree (Use when running as a virtual machine under KVM)
 
     --keep-ssh
         Stop OpenSSH from being disabled and uninstalled as part of the install
