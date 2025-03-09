@@ -16,7 +16,7 @@ This script configures a Linux system to run as a kiosk. It sets up an automatic
    - `Hardware Support`: Installs hardware drivers
    - `base-x`: Installs Xorg Window System
    - `alsa-utils`: Install tools for adjusting audio settings
-   - `google-chrome-stable` or `chromium`: Installs web browser
+   - `google-chrome-stable`,`chromium` or `brave`: Installs web browser
 
 3. **Create Systemd Service Override for Getty Service:**
    The script creates a custom systemd service configuration to enable automatic login for the kiosk user at the first terminal (tty1).
