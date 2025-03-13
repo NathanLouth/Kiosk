@@ -145,6 +145,11 @@ case $BROWSER in
     chromium-browser)
         dnf install -y epel-release --setopt=install_weak_deps=false
         dnf install -y chromium --setopt=install_weak_deps=false
+        if [ -n "$BLOCKDOWNLOADS" ]; then
+            mkdir -p /etc/chromium/policies/managed
+            echo '{"DownloadRestrictions": 3}' | sudo tee /etc/chromium/policies/managed/managed_policies.json
+            chmod 644 /etc/chromium/policies/managed/managed_policies.json
+        fi
         ;;
     brave-browser)
         dnf install -y dnf-plugins-core --setopt=install_weak_deps=false
