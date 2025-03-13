@@ -138,7 +138,7 @@ case $BROWSER in
         rm -f ./google-chrome-stable_current_x86_64.rpm
         if [ -n "$BLOCKDOWNLOADS" ]; then
             mkdir -p /etc/opt/chrome/policies/managed
-            echo '{"DownloadRestrictions": "3"}' | sudo tee /etc/opt/chrome/policies/managed/managed_policies.json
+            echo '{"DownloadRestrictions": 3}' | sudo tee /etc/opt/chrome/policies/managed/managed_policies.json
             chmod 644 /etc/opt/chrome/policies/managed/managed_policies.json
         fi
         ;;
