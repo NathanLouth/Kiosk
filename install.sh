@@ -139,7 +139,7 @@ case $BROWSER in
         if [ -n "$BLOCKDOWNLOADS" ]; then
             mkdir -p /etc/opt/chrome/policies/managed
             echo '{"DownloadRestrictions": 3, "DownloadDirectory": "/home/${user_name}/Downloads"}' | tee /etc/opt/chrome/policies/managed/download_policy.json
-            chmod 644 /etc/opt/chrome/policies/managed/managed_policies.json
+            chmod 644 /etc/opt/chrome/policies/managed/download_policy.json
         fi
         ;;
     chromium-browser)
@@ -148,7 +148,7 @@ case $BROWSER in
         if [ -n "$BLOCKDOWNLOADS" ]; then
             mkdir -p /etc/chromium/policies/managed
             echo '{"DownloadRestrictions": 3, "DownloadDirectory": "/home/${user_name}/Downloads"}' | tee /etc/chromium/policies/managed/download_policy.json
-            chmod 644 /etc/chromium/policies/managed/managed_policies.json
+            chmod 644 /etc/chromium/policies/managed/download_policy.json
         fi
         ;;
     brave-browser)
