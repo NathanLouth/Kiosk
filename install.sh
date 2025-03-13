@@ -12,6 +12,7 @@ STARTXCMD="startx"
 AUTOREBOOT=""
 REBOOTMIN="60"
 AUTOUPDATE=""
+BLOCKDOWNLOADS=""
 SSH=""
 
 # Parse command-line arguments
@@ -101,6 +102,11 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
 
+        --block-downloads)
+            BLOCKDOWNLOADS="BLOCK"
+            shift
+            ;;
+
         --keep-ssh)
             SSH="KEEP"
             shift
@@ -130,6 +136,11 @@ case $BROWSER in
         wget https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
         dnf install -y ./google-chrome-stable_current_x86_64.rpm --setopt=install_weak_deps=false
         rm -f ./google-chrome-stable_current_x86_64.rpm
+        if [ -n "$BLOCKDOWNLOADS" ]; then
+            mkdir -p /etc/opt/chrome/policies/managed
+            echo '{"DownloadRestrictions": "3"}' | sudo tee /etc/opt/chrome/policies/managed/managed_policies.json
+            chmod 644 /etc/opt/chrome/policies/managed/managed_policies.json
+        fi
         ;;
     chromium-browser)
         dnf install -y epel-release --setopt=install_weak_deps=false
