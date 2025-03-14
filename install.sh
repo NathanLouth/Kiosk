@@ -155,6 +155,11 @@ case $BROWSER in
         dnf install -y dnf-plugins-core --setopt=install_weak_deps=false
         dnf config-manager --add-repo https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo
         dnf install -y brave-browser --setopt=install_weak_deps=false
+        if [ -n "$BLOCKDOWNLOADS" ]; then
+            mkdir -p /etc/brave/policies/managed
+            echo '{"DownloadRestrictions": 3, "DownloadDirectory": "/home/${user_name}/Downloads"}' | tee /etc/brave/policies/managed/download_policy.json
+            chmod 644 /etc/brave/policies/managed/download_policy.json
+        fi
         ;;
 esac
 
