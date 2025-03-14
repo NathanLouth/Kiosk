@@ -90,6 +90,9 @@ The script supports the following optional command-line arguments for customizin
     --no-tearfree
         Disable TearFree (Use when running as a virtual machine under KVM)
 
+    --block-downloads
+        Blocks downloading files through the browser
+
     --keep-ssh
         Stop OpenSSH from being disabled and uninstalled as part of the install
         

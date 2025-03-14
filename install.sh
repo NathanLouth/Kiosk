@@ -12,6 +12,7 @@ STARTXCMD="startx"
 AUTOREBOOT=""
 REBOOTMIN="60"
 AUTOUPDATE=""
+BLOCKDOWNLOADS=""
 SSH=""
 
 # Parse command-line arguments
@@ -101,13 +102,18 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
 
+        --block-downloads)
+            BLOCKDOWNLOADS="BLOCK"
+            shift
+            ;;
+
         --keep-ssh)
             SSH="KEEP"
             shift
             ;;
             
         *)
-            echo "Usage: $0 [--card X] [--device X] [--screen X] [--browser X] [--url X] [--auto-reboot X] [--auto-update] [--nourl] [--incognito] [--kiosk] [--keep-ssh] [--no-cursor] [--no-tearfree]" >&2
+            echo "Usage: $0 [--card X] [--device X] [--screen X] [--browser X] [--url X] [--auto-reboot X] [--auto-update] [--incognito] [--kiosk] [--block-downloads] [--keep-ssh] [--no-cursor] [--no-tearfree]" >&2
             exit 1
             ;;
     esac
@@ -130,15 +136,30 @@ case $BROWSER in
         wget https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
         dnf install -y ./google-chrome-stable_current_x86_64.rpm --setopt=install_weak_deps=false
         rm -f ./google-chrome-stable_current_x86_64.rpm
+        if [ -n "$BLOCKDOWNLOADS" ]; then
+            mkdir -p /etc/opt/chrome/policies/managed
+            echo '{"DownloadRestrictions": 3, "DownloadDirectory": "/home/${user_name}/Downloads"}' | tee /etc/opt/chrome/policies/managed/download_policy.json
+            chmod 644 /etc/opt/chrome/policies/managed/download_policy.json
+        fi
         ;;
     chromium-browser)
         dnf install -y epel-release --setopt=install_weak_deps=false
         dnf install -y chromium --setopt=install_weak_deps=false
+        if [ -n "$BLOCKDOWNLOADS" ]; then
+            mkdir -p /etc/chromium/policies/managed
+            echo '{"DownloadRestrictions": 3, "DownloadDirectory": "/home/${user_name}/Downloads"}' | tee /etc/chromium/policies/managed/download_policy.json
+            chmod 644 /etc/chromium/policies/managed/download_policy.json
+        fi
         ;;
     brave-browser)
         dnf install -y dnf-plugins-core --setopt=install_weak_deps=false
         dnf config-manager --add-repo https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo
         dnf install -y brave-browser --setopt=install_weak_deps=false
+        if [ -n "$BLOCKDOWNLOADS" ]; then
+            mkdir -p /etc/brave/policies/managed
+            echo '{"DownloadRestrictions": 3, "DownloadDirectory": "/home/${user_name}/Downloads"}' | tee /etc/brave/policies/managed/download_policy.json
+            chmod 644 /etc/brave/policies/managed/download_policy.json
+        fi
         ;;
 esac
 
@@ -189,10 +210,6 @@ WIDTH=\$(echo \$SCREEN_RESOLUTION | cut -d 'x' -f 1)
 HEIGHT=\$(echo \$SCREEN_RESOLUTION | cut -d 'x' -f 2)
 
 $BROWSER$BROWSER_FLAGS --window-position=0,0 --window-size=\$WIDTH,\$HEIGHT$URL
-
-while pgrep -x "$BROWSER" > /dev/null; do
-    sleep 10
-done
 
 sudo systemctl reboot
 EOL
