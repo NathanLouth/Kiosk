@@ -1,4 +1,6 @@
-# Kiosk System Setup Script
+# Kiosk System Setup Script (Wayland)
+
+[!WARNING] Wayland support is currently under development and may not be fully functional. It is strongly recommended to use the "Release" branch until development on Wayland support is complete.
 
 ## Overview
 This script configures a Linux system to run as a kiosk. It sets up an automatic login for the kiosk user, starts the X server, and launches a browser that can run in kiosk mode and display a predefined web page. The system also disables the GRUB boot menu and boots directly into the kiosk interface.
