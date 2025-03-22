@@ -166,7 +166,7 @@ ExecStart=-/sbin/agetty --autologin kiosk --noclear %I \$TERM
 EOL
 
 # Create the .kioskstartx file
-cat > /home/kiosk/.kioskstartx <<EOL
+cat > /home/kiosk/.kioskweston <<EOL
 #!/bin/bash
 clear
 sleep 5
