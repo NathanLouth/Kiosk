@@ -6,9 +6,7 @@ BROWSER_FLAGS=""
 URL=""
 CARD="0"
 DEVICE="0"
-SCREEN_TEARING=" --set TearFree on"
 SCREEN_RESOLUTION="1920x1080"
-STARTXCMD="startx"
 AUTOREBOOT=""
 REBOOTMIN="60"
 AUTOUPDATE=""
@@ -87,16 +85,6 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
 
-        --no-cursor)
-            STARTXCMD="startx -- -nocursor"
-            shift
-            ;;
-
-        --no-tearfree)
-            SCREEN_TEARING=""
-            shift
-            ;;
-
         --auto-update)
             AUTOUPDATE="UPDATE"
             shift
@@ -113,7 +101,7 @@ while [[ $# -gt 0 ]]; do
             ;;
             
         *)
-            echo "Usage: $0 [--card X] [--device X] [--screen X] [--browser X] [--url X] [--auto-reboot X] [--auto-update] [--incognito] [--kiosk] [--block-downloads] [--ad-block] [--no-cursor] [--no-tearfree]" >&2
+            echo "Usage: $0 [--card X] [--device X] [--screen X] [--browser X] [--url X] [--auto-reboot X] [--auto-update] [--incognito] [--kiosk] [--block-downloads] [--ad-block]" >&2
             exit 1
             ;;
     esac
@@ -122,7 +110,7 @@ done
 # Update the system
 apt update -y
 apt upgrade -y
-apt install -y xorg xinit alsa-utils sudo
+apt install -y weston alsa-utils sudo
 
 case $BROWSER in
     google-chrome-stable)
@@ -182,45 +170,16 @@ cat > /home/kiosk/.kioskstartx <<EOL
 #!/bin/bash
 clear
 sleep 5
-$STARTXCMD
+weston --shell=kiosk-shell.so &
+$BROWSER$BROWSER_FLAGS --window-position=0,0 --window-size=\$WIDTH,\$HEIGHT$URL
 EOL
 
 # Make .xinitrc owned by the kiosk user and executable
-chown kiosk:kiosk /home/kiosk/.kioskstartx
-chmod +x /home/kiosk/.kioskstartx
+chown kiosk:kiosk /home/kiosk/.kioskweston
+chmod +x /home/kiosk/.kioskweston
 
 # Add ".kioskstartx file to bashrc (if not already)
-grep -qxF "source /home/kiosk/.kioskstartx" /home/kiosk/.bashrc || echo "source /home/kiosk/.kioskstartx" >> /home/kiosk/.bashrc
-
-# Create the .xinitrc file for the kiosk user
-cat > /home/kiosk/.xinitrc <<EOL
-#!/bin/bash
-
-sleep 3
-
-xrandr --output \$(xrandr | grep " connected " | awk '{ print\$1 }' | head -n 1) --mode $SCREEN_RESOLUTION$SCREEN_TEARING
-
-xset s off
-xset -dpms
-xset s noblank
-
-sleep 2
-
-amixer -c $CARD sset Master 100%
-
-SCREEN_RESOLUTION=\$(xrandr | grep '*' | awk '{print \$1}')
-
-WIDTH=\$(echo \$SCREEN_RESOLUTION | cut -d 'x' -f 1)
-HEIGHT=\$(echo \$SCREEN_RESOLUTION | cut -d 'x' -f 2)
-
-$BROWSER$BROWSER_FLAGS --window-position=0,0 --window-size=\$WIDTH,\$HEIGHT$URL
-
-sudo systemctl reboot
-EOL
-
-# Make .xinitrc owned by the kiosk user and executable
-chown kiosk:kiosk /home/kiosk/.xinitrc
-chmod +x /home/kiosk/.xinitrc
+grep -qxF "source /home/kiosk/.kioskweston" /home/kiosk/.bashrc || echo "source /home/kiosk/.kioskweston" >> /home/kiosk/.bashrc
 
 # Make asound.conf for audio settings
 cat > /etc/asound.conf <<EOL
