@@ -5,7 +5,7 @@
 > It is strongly recommended to use the `Release` branch until development on Wayland support is complete.
 
 ## Overview
-This script configures a Linux system to run as a kiosk. It sets up an automatic login for the kiosk user, starts the X server, and launches a browser that can run in kiosk mode and display a predefined web page. The system also disables the GRUB boot menu and boots directly into the kiosk interface.
+This script configures a Linux system to run as a kiosk. It sets up an automatic login for the kiosk user, starts Weston (Wayland Compositor), and launches a browser that can run in kiosk mode and display a predefined web page. The system also disables the GRUB boot menu and boots directly into the kiosk interface.
 
 ## Prerequisites
 - A fresh installation of `Debian 12` (Minimal no GUI install).
@@ -152,15 +152,11 @@ Hidden cursor:
 
 ## Troubleshooting
 
-### Startx Error
-If startx fails to launch, try running the script again. This will reinstall the necessary packages.
+### Weston Error
+If Weston fails to launch, try running the script again. This will reinstall the necessary packages.
 
 ### The Browser Not Launching
 If the selected browser does not launch, ensure that the kiosk user has the appropriate permissions and that xinit and the browser are properly installed.
-
-### Screen Resolution Issues
-If the screen resolution does not appear correctly, modify the xrandr settings in the .xinitrc file (/home/kiosk/.xinitrc).
-If the screen resolution is incorrect, some GPU drivers do not support the TearFree option, try rerunning the script with the `--no-tearfree` argument. Please note that disabling this option may lead to screen tearing. (Use `--no-tearfree` when running in a virtual machine under KVM.)
 
 ### Autologin Not Working
 Verify that the getty@tty1.service.d/override.conf file is created correctly and that the kiosk user is configured to log in automatically.
