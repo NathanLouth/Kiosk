@@ -180,6 +180,23 @@ chmod +x /home/kiosk/.kioskstartweston
 # Add ".kioskstartweston file to bashrc (if not already)
 grep -qxF "source /home/kiosk/.kioskstartweston" /home/kiosk/.bashrc || echo "source /home/kiosk/.kioskstartweston" >> /home/kiosk/.bashrc
 
+# Create the directory for Weston Config file
+mkdir -p /home/kiosk/.config
+
+# Make Weston Config File
+cat > /home/kiosk/.config/weston.ini <<EOL
+[core]
+xwayland=true
+
+[launcher]
+icon=/usr/share/icons/hicolor/24x24/apps/chromium.png
+path=/usr/bin/chromium
+EOL
+
+# Make weston.ini owned by the kiosk user and executable
+chown kiosk:kiosk /home/kiosk/.kioskstartweston
+chmod +x /home/kiosk/.kioskstartweston
+
 # Make asound.conf for audio settings
 cat > /etc/asound.conf <<EOL
 defaults.pcm.card $CARD
