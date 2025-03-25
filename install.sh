@@ -258,6 +258,28 @@ cat > /etc/sudoers.d/kiosk-reboot <<EOL
 kiosk ALL=(ALL) NOPASSWD:/usr/bin/systemctl reboot
 EOL
 
+# Create and enable firewall (nftables)
+cat > /etc/nftables.conf <<EOL
+#!/usr/sbin/nft -f
+
+flush ruleset
+
+table inet filter {
+  chain input {
+    type filter hook input priority 0; policy drop;
+    iifname lo accept;
+    ct state {established, related} accept;
+  }
+  chain forward {
+    type filter hook forward priority 0; policy drop;
+  }
+  chain output {
+    type filter hook output priority 0; policy accept;
+  }
+}
+EOL
+systemctl enable nftables
+
 # Update GRUB configuration
 sed -i 's/^GRUB_TIMEOUT=[0-9]*$/GRUB_TIMEOUT=0/' /etc/default/grub
 update-grub
