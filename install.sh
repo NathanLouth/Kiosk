@@ -127,6 +127,7 @@ case $BROWSER in
         apt update -y 
         apt install brave-browser -y
         BROWSERPOLICY="brave"
+        ADBLOCK=""
         ;;
 esac
 
