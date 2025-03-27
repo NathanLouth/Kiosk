@@ -155,9 +155,10 @@ EOL
 # Create the .startkiosk file
 cat > /home/kiosk/.startkiosk <<EOL
 #!/bin/bash
+clear
+sleep 5
 export WLR_NO_HARDWARE_CURSORS=1 wio
 amixer -c ${CARD} sset Master 100%
-clear
 sway
 EOL
 
