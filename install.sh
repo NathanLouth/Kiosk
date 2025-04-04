@@ -12,6 +12,7 @@ REBOOTMIN="60"
 AUTOUPDATE=""
 BLOCKDOWNLOADS=""
 ADBLOCK=""
+HIDECURSOR=""
 
 # Parse command-line arguments
 while [[ $# -gt 0 ]]; do
@@ -95,9 +96,14 @@ while [[ $# -gt 0 ]]; do
             ADBLOCK="INSTALL"
             shift
             ;;
+
+        --hide-cursor)
+            HIDECURSOR="HIDE"
+            shift
+            ;;
             
         *)
-            echo "Usage: $0 [--card X] [--device X] [--screen X] [--browser X] [--url X] [--auto-reboot X] [--auto-update] [--incognito] [--kiosk] [--block-downloads] [--ad-block]" >&2
+            echo "Usage: $0 [--card X] [--device X] [--screen X] [--browser X] [--url X] [--auto-reboot X] [--auto-update] [--incognito] [--kiosk] [--block-downloads] [--ad-block] [--hide-cursor]" >&2
             exit 1
             ;;
     esac
@@ -164,6 +170,11 @@ export WLR_NO_HARDWARE_CURSORS=1 wio
 amixer -c ${CARD} sset Master 100%
 sway
 EOL
+
+# Hide mouse cursor if command-line argument is provided.
+if [ -n "$HIDECURSOR" ]; then
+    sed -i '/^exec sh -c/ i seat seat0 hide_cursor 3000' /home/kiosk/.config/sway/config
+fi
 
 # Make .startkiosk executable
 chmod +rx /home/kiosk/.startkiosk

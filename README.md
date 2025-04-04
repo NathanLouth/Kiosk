@@ -89,6 +89,9 @@ The script supports the following optional command-line arguments for customizin
 
     --ad-block
         Installs uBlock Origin Lite on Chrome or Chromium
+
+    --hide-cursor
+        Hides the mouse cursor after 3 seconds of inactivity
         
 ## Example Usage
 
