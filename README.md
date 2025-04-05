@@ -133,6 +133,20 @@ Launch Chrome in kiosk mode with incognito and custom URL:
 
 ## Troubleshooting
 
+### Initializing Graphics Drivers or Establishing Network Connection
+
+The system waits for both the graphics driver to fully initialize and for the machine to connect to the network before starting Sway. If Sway isn't launching, it's likely that one or both of these conditions haven't been met.
+
+#### Checking Network Connectivity
+To verify if your system is connected to the network, run the following command:
+`ping <IP ADDRESS OR WEBSITE DOMAIN>`
+You should see a response if the system is connected. If no response is received, the system is not connected to the network.
+
+#### Checking Graphics Driver Initialization
+To check if the graphics driver has initialized correctly, run the following command:
+`ls /dev/dri | grep "card"`
+If the output includes `cardX`, it means the graphics driver has been initialized. If there's no output, the graphics driver has not been initialized.
+
 ### Sway (Wayland Kiosk Compositor) Error
 If Sway (Wayland Kiosk Compositor) fails to launch, try running the script again. This will reinstall the necessary packages.
 

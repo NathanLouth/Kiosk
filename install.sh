@@ -163,18 +163,21 @@ EOL
 cat > /home/kiosk/.startkiosk <<EOL
 #!/bin/bash
 clear
-while [ ! -e /dev/dri/card0 ]; do
+echo "Initializing Graphic Drivers..."
+while ! ls /dev/dri | grep -q "card"; do
     sleep 1
 done
+clear
+echo "Establishing Network Connection..."
+while ! ip route | grep -q "^default"; do
+    sleep 1
+done
+clear
 export WLR_NO_HARDWARE_CURSORS=1 wio
 amixer -c ${CARD} sset Master 100%
+clear
 sway
 EOL
-
-# Hide mouse cursor if command-line argument is provided.
-if [ -n "$HIDECURSOR" ]; then
-    sed -i '/^exec sh -c/ i seat seat0 hide_cursor 3000' /home/kiosk/.config/sway/config
-fi
 
 # Make .startkiosk executable
 chmod +rx /home/kiosk/.startkiosk
@@ -194,6 +197,11 @@ output * resolution $SCREEN_RESOLUTION
 input * xkb_layout gb
 exec sh -c "$BROWSER$BROWSER_FLAGS$URL; sudo systemctl reboot"
 EOL
+
+# Hide mouse cursor if command-line argument is provided.
+if [ -n "$HIDECURSOR" ]; then
+    sed -i '/^exec sh -c/ i seat seat0 hide_cursor 3000' /home/kiosk/.config/sway/config
+fi
 
 # Make asound.conf for audio settings
 cat > /etc/asound.conf <<EOL
