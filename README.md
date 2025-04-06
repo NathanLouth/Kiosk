@@ -75,6 +75,9 @@ The script supports the following optional command-line arguments for customizin
     --url X
         Specify the URL to display in kiosk mode. Encloses the URL in quotes. (Default New Tab Page)
 
+    --auto-refresh X
+        Enable auto refresh X should be a number in seconds (300 refresh every 5 minutes) (Default is disabled)
+
     --auto-update
         Update system weekly
 

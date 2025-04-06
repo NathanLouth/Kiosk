@@ -13,6 +13,7 @@ AUTOUPDATE=""
 BLOCKDOWNLOADS=""
 ADBLOCK=""
 HIDECURSOR=""
+REFRESHSEC=""
 
 # Parse command-line arguments
 while [[ $# -gt 0 ]]; do
@@ -71,6 +72,15 @@ while [[ $# -gt 0 ]]; do
             SCREEN_RESOLUTION="$2"
             shift 2
             ;;
+
+        --auto-refresh)
+            if ! [[ "$2" =~ ^[0-9]+$ ]]; then
+                echo "Error: The --auto-refresh option requires a numeric value (in seconds) to specify the refresh interval." >&2
+                exit 1
+            fi
+            REFRESHSEC="$2"
+            shift 2
+            ;;
             
         --incognito)
             BROWSER_FLAGS="$BROWSER_FLAGS --incognito"
@@ -103,7 +113,7 @@ while [[ $# -gt 0 ]]; do
             ;;
             
         *)
-            echo "Usage: $0 [--card X] [--device X] [--screen X] [--browser X] [--url X] [--auto-reboot X] [--auto-update] [--incognito] [--kiosk] [--block-downloads] [--ad-block] [--hide-cursor]" >&2
+            echo "Usage: $0 [--card X] [--device X] [--screen X] [--browser X] [--url X] [--auto-refresh] [--auto-reboot X] [--auto-update] [--incognito] [--kiosk] [--block-downloads] [--ad-block] [--hide-cursor]" >&2
             exit 1
             ;;
     esac
@@ -277,6 +287,29 @@ fi
 cat > /etc/sudoers.d/kiosk-reboot <<EOL
 kiosk ALL=(ALL) NOPASSWD:/usr/bin/systemctl reboot
 EOL
+
+if [ -n "$REFRESHSEC" ]; then
+# Install ydotool to send keystrokes
+apt install ydotool -y
+
+# Create auto-refresh service
+cat > /etc/systemd/system/kiosk-auto-refresh.service <<EOL
+[Unit]
+Description=Auto refresh chrome
+After=multi-user.target
+
+[Service]
+ExecStart=/usr/bin/ydotool key ctrl+f5
+Restart=always
+RestartSec=${REFRESHSEC}
+
+[Install]
+WantedBy=multi-user.target
+EOL
+
+# Enable refresh service
+systemctl enable kiosk-auto-refresh.service
+fi
 
 # Create and enable firewall (nftables)
 cat > /etc/nftables.conf <<EOL
