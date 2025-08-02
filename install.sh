@@ -203,6 +203,7 @@ chown kiosk:kiosk /home/kiosk/.config
 cat > /home/kiosk/.config/sway/config <<EOL
 set \$mod none
 for_window [class=".*"] border pixel 0
+default_border none
 output * resolution $SCREEN_RESOLUTION
 input * xkb_layout gb
 exec sh -c "$BROWSER$BROWSER_FLAGS$URL; sudo systemctl reboot"
