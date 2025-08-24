@@ -4,7 +4,7 @@
 This script configures a Linux system to run as a kiosk. It sets up an automatic login for the kiosk user, starts Sway (Wayland Kiosk Compositor), and launches a browser that can run in kiosk mode and display a predefined web page. The system also disables the GRUB boot menu.
 
 ## Prerequisites
-- A fresh installation of `Debian 12` (Minimal no GUI install).
+- A fresh installation of `Debian 13` (Minimal no GUI install).
 - A user account named `kiosk` (ensure this user exists before running the script).
 - `root privileges` to run administrative commands (Root enabled).
 
@@ -74,9 +74,6 @@ The script supports the following optional command-line arguments for customizin
             
     --url X
         Specify the URL to display in kiosk mode. Encloses the URL in quotes. (Default New Tab Page)
-
-    --auto-refresh X
-        Enable auto refresh X should be a number in seconds (300 refresh every 5 minutes) (Default is disabled)
 
     --auto-update
         Update system weekly
