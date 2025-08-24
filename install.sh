@@ -72,15 +72,6 @@ while [[ $# -gt 0 ]]; do
             SCREEN_RESOLUTION="$2"
             shift 2
             ;;
-
-        --auto-refresh)
-            if ! [[ "$2" =~ ^[0-9]+$ ]]; then
-                echo "Error: The --auto-refresh option requires a numeric value (in seconds) to specify the refresh interval." >&2
-                exit 1
-            fi
-            REFRESHSEC="$2"
-            shift 2
-            ;;
             
         --incognito)
             BROWSER_FLAGS="$BROWSER_FLAGS --incognito"
@@ -157,32 +148,6 @@ if [ -n "$ADBLOCK" ]; then
     mkdir -p /etc/${BROWSERPOLICY}/policies/managed
     echo '{"ExtensionInstallForcelist":["ddkjiahejlhfcafbddmgiahcphecmpfh;https://clients2.google.com/service/update2/crx"]}' | tee /etc/${BROWSERPOLICY}/policies/managed/adblock_policy.json
     chmod 644 /etc/${BROWSERPOLICY}/policies/managed/adblock_policy.json
-fi
-
-if [ -n "$REFRESHSEC" ]; then
-#Install required software
-apt install -y jq curl
-
-#Add debugging port to allow script to refresh page
-BROWSER_FLAGS="$BROWSER_FLAGS --remote-debugging-port=9222"
-
-# Create auto-refresh service
-cat > /etc/systemd/system/kiosk-auto-refresh.service <<EOL
-[Unit]
-Description=Auto refresh chrome
-After=multi-user.target
-
-[Service]
-ExecStart=/bin/bash -c 'TABS=$(curl -s http://localhost:9222/json | jq -r ".[].id"); for TAB in $TABS; do curl -s -X POST "http://localhost:9222/json/reload/$TAB" > /dev/null; done'
-Restart=always
-RestartSec=${REFRESHSEC}
-
-[Install]
-WantedBy=multi-user.target
-EOL
-
-# Enable refresh service
-systemctl enable kiosk-auto-refresh.service
 fi
 
 # Create the directory for the systemd service override
