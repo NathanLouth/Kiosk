@@ -159,6 +159,32 @@ if [ -n "$ADBLOCK" ]; then
     chmod 644 /etc/${BROWSERPOLICY}/policies/managed/adblock_policy.json
 fi
 
+if [ -n "$REFRESHSEC" ]; then
+#Install required software
+apt install -y jq curl
+
+#Add debugging port to allow script to refresh page
+BROWSER_FLAGS="$BROWSER_FLAGS --remote-debugging-port=9222"
+
+# Create auto-refresh service
+cat > /etc/systemd/system/kiosk-auto-refresh.service <<EOL
+[Unit]
+Description=Auto refresh chrome
+After=multi-user.target
+
+[Service]
+ExecStart=/bin/bash -c 'TABS=$(curl -s http://localhost:9222/json | jq -r ".[].id"); for TAB in $TABS; do curl -s -X POST "http://localhost:9222/json/reload/$TAB" > /dev/null; done'
+Restart=always
+RestartSec=${REFRESHSEC}
+
+[Install]
+WantedBy=multi-user.target
+EOL
+
+# Enable refresh service
+systemctl enable kiosk-auto-refresh.service
+fi
+
 # Create the directory for the systemd service override
 mkdir -p /etc/systemd/system/getty@tty1.service.d/
 
@@ -288,33 +314,6 @@ fi
 cat > /etc/sudoers.d/kiosk-reboot <<EOL
 kiosk ALL=(ALL) NOPASSWD:/usr/bin/systemctl reboot
 EOL
-
-if [ -n "$REFRESHSEC" ]; then
-
-#Install required software
-apt install -y jq curl
-
-#Add debugging port to allow script to refresh page
-BROWSER_FLAGS="$BROWSER_FLAGS --remote-debugging-port=9222"
-
-# Create auto-refresh service
-cat > /etc/systemd/system/kiosk-auto-refresh.service <<EOL
-[Unit]
-Description=Auto refresh chrome
-After=multi-user.target
-
-[Service]
-ExecStart=/bin/bash -c 'TABS=$(curl -s http://localhost:9222/json | jq -r ".[].id"); for TAB in $TABS; do curl -s -X POST "http://localhost:9222/json/reload/$TAB" > /dev/null; done'
-Restart=always
-RestartSec=${REFRESHSEC}
-
-[Install]
-WantedBy=multi-user.target
-EOL
-
-# Enable refresh service
-systemctl enable kiosk-auto-refresh.service
-fi
 
 # Create and enable firewall (nftables)
 cat > /etc/nftables.conf <<EOL
