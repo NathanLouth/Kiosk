@@ -13,7 +13,6 @@ AUTOUPDATE=""
 BLOCKDOWNLOADS=""
 ADBLOCK=""
 HIDECURSOR=""
-REFRESHSEC=""
 
 # Parse command-line arguments
 while [[ $# -gt 0 ]]; do
