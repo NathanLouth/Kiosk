@@ -13,6 +13,7 @@ AUTOUPDATE=""
 BLOCKDOWNLOADS=""
 ADBLOCK=""
 HIDECURSOR=""
+REFRESHSEC=""
 
 # Parse command-line arguments
 while [[ $# -gt 0 ]]; do
@@ -71,6 +72,15 @@ while [[ $# -gt 0 ]]; do
             SCREEN_RESOLUTION="$2"
             shift 2
             ;;
+
+        --auto-refresh)
+            if ! [[ "$2" =~ ^[0-9]+$ ]]; then
+                echo "Error: The --auto-refresh option requires a numeric value (in seconds) to specify the refresh interval." >&2
+                exit 1
+            fi
+            REFRESHSEC="$2"
+            shift 2
+            ;;
             
         --incognito)
             BROWSER_FLAGS="$BROWSER_FLAGS --incognito"
@@ -103,7 +113,7 @@ while [[ $# -gt 0 ]]; do
             ;;
             
         *)
-            echo "Usage: $0 [--card X] [--device X] [--screen X] [--browser X] [--url X] [--auto-reboot X] [--auto-update] [--incognito] [--kiosk] [--block-downloads] [--ad-block] [--hide-cursor]" >&2
+            echo "Usage: $0 [--card X] [--device X] [--screen X] [--browser X] [--url X] [--auto-refresh] [--auto-reboot X] [--auto-update] [--incognito] [--kiosk] [--block-downloads] [--ad-block] [--hide-cursor]" >&2
             exit 1
             ;;
     esac
@@ -147,6 +157,34 @@ if [ -n "$ADBLOCK" ]; then
     mkdir -p /etc/${BROWSERPOLICY}/policies/managed
     echo '{"ExtensionInstallForcelist":["ddkjiahejlhfcafbddmgiahcphecmpfh;https://clients2.google.com/service/update2/crx"]}' | tee /etc/${BROWSERPOLICY}/policies/managed/adblock_policy.json
     chmod 644 /etc/${BROWSERPOLICY}/policies/managed/adblock_policy.json
+fi
+
+if [ -n "$REFRESHSEC" ]; then
+# Make browsers open with debugging
+mkdir -p "/home/kiosk/.config/kiosk-user-data"
+BROWSER_FLAGS="$BROWSER_FLAGS --remote-debugging-port=9222 --user-data-dir=/home/kiosk/.config/kiosk-user-data"
+
+# Install software to talk with browser debugging
+apt install -y nodejs npm
+npm install -g wscat --yes
+
+# Create auto-refresh service
+cat > /etc/systemd/system/kiosk-auto-refresh.service <<EOL
+[Unit]
+Description=Auto refresh browser
+After=multi-user.target
+
+[Service]
+ExecStart=ExecStart=/bin/sh -c 'for ws in $(curl -s http://localhost:9222/json | jq -r ".[].webSocketDebuggerUrl"); do node -e "const WebSocket = require(\"ws\"); const ws = new WebSocket(\"\$ws\"); ws.on(\"open\", () => { ws.send(JSON.stringify({id:1, method:\"Page.reload\", params:{ignoreCache:true}})); ws.close(); });"; done'
+Restart=always
+RestartSec=${REFRESHSEC}
+
+[Install]
+WantedBy=multi-user.target
+EOL
+
+# Enable refresh service
+systemctl enable kiosk-auto-refresh.service
 fi
 
 # Create the directory for the systemd service override
