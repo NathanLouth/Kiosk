@@ -166,8 +166,8 @@ chown kiosk:kiosk "/home/kiosk/.config/kiosk-user-data"
 BROWSER_FLAGS="$BROWSER_FLAGS --remote-debugging-port=9222 --user-data-dir=/home/kiosk/.config/kiosk-user-data"
 
 # Install dependencies for browser debugging communication
-apt install -y nodejs npm curl jq
-npm install -g wscat --yes
+apt install -y nodejs npm
+npm install -g ws --yes
 
 # Create auto-refresh service
 cat > /etc/systemd/system/kiosk-auto-refresh.service <<EOL
@@ -176,7 +176,7 @@ Description=Auto refresh browser
 After=multi-user.target
 
 [Service]
-ExecStart=/bin/bash -c "for ws in \$(curl -s http://localhost:9222/json | jq -r '.[].webSocketDebuggerUrl'); do node -e \"const WebSocket = require('ws'); const ws = new WebSocket('\$ws'); ws.on('open', () => { ws.send(JSON.stringify({id:1, method:'Page.reload', params:{ignoreCache:true}})); ws.close(); });\"; done"
+ExecStart=/usr/bin/node -e "const http=require('http'),WebSocket=require('ws');http.get('http://localhost:9222/json',r=>{let d='';r.on('data',c=>d+=c);r.on('end',()=>{try{JSON.parse(d).forEach(p=>{if(p.webSocketDebuggerUrl){const ws=new WebSocket(p.webSocketDebuggerUrl);ws.on('open',()=>{ws.send(JSON.stringify({id:1,method:'Page.reload',params:{ignoreCache:true}}));ws.close();});}});}catch(e){console.error(e);}});}).on('error',e=>console.error(e));"
 Restart=always
 RestartSec=${REFRESHSEC}
 
