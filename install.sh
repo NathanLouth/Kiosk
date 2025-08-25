@@ -165,7 +165,7 @@ mkdir -p "/home/kiosk/.config/kiosk-user-data"
 BROWSER_FLAGS="$BROWSER_FLAGS --remote-debugging-port=9222 --user-data-dir=/home/kiosk/.config/kiosk-user-data"
 
 # Install software to talk with browser debugging
-apt install -y nodejs npm
+apt install -y nodejs npm curl jq
 npm install -g wscat --yes
 
 # Create auto-refresh service
