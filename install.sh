@@ -165,7 +165,7 @@ mkdir -p "/home/kiosk/.config/kiosk-user-data"
 chown kiosk:kiosk "/home/kiosk/.config/kiosk-user-data"
 BROWSER_FLAGS="$BROWSER_FLAGS --remote-debugging-port=9222 --user-data-dir=/home/kiosk/.config/kiosk-user-data"
 
-# nstall dependencies for browser debugging communication
+# Install dependencies for browser debugging communication
 apt install -y nodejs npm curl jq
 npm install -g wscat --yes
 
