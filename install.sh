@@ -113,7 +113,7 @@ while [[ $# -gt 0 ]]; do
             ;;
             
         *)
-            echo "Usage: $0 [--card X] [--device X] [--screen X] [--browser X] [--url X] [--auto-refresh] [--auto-reboot X] [--auto-update] [--incognito] [--kiosk] [--block-downloads] [--ad-block] [--hide-cursor]" >&2
+            echo "Usage: $0 [--card X] [--device X] [--screen X] [--browser X] [--url X] [--auto-refresh] [--auto-reboot X] [--auto-refresh X] [--auto-update] [--incognito] [--kiosk] [--block-downloads] [--ad-block] [--hide-cursor]" >&2
             exit 1
             ;;
     esac
@@ -160,12 +160,12 @@ if [ -n "$ADBLOCK" ]; then
 fi
 
 if [ -n "$REFRESHSEC" ]; then
-# Make browsers open with debugging
+# Configure browser to launch with debugging enabled
 mkdir -p "/home/kiosk/.config/kiosk-user-data"
 chown kiosk:kiosk "/home/kiosk/.config/kiosk-user-data"
 BROWSER_FLAGS="$BROWSER_FLAGS --remote-debugging-port=9222 --user-data-dir=/home/kiosk/.config/kiosk-user-data"
 
-# Install software to talk with browser debugging
+# nstall dependencies for browser debugging communication
 apt install -y nodejs npm curl jq
 npm install -g wscat --yes
 
