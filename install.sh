@@ -162,7 +162,7 @@ fi
 if [ -n "$REFRESHSEC" ]; then
 # Make browsers open with debugging
 mkdir -p "/home/kiosk/.config/kiosk-user-data"
-chmod kiosk:kiosk "/home/kiosk/.config/kiosk-user-data"
+chown kiosk:kiosk "/home/kiosk/.config/kiosk-user-data"
 BROWSER_FLAGS="$BROWSER_FLAGS --remote-debugging-port=9222 --user-data-dir=/home/kiosk/.config/kiosk-user-data"
 
 # Install software to talk with browser debugging
