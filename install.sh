@@ -175,7 +175,7 @@ Description=Auto refresh browser
 After=multi-user.target
 
 [Service]
-ExecStart=ExecStart=/bin/sh -c 'for ws in $(curl -s http://localhost:9222/json | jq -r ".[].webSocketDebuggerUrl"); do node -e "const WebSocket = require(\"ws\"); const ws = new WebSocket(\"\$ws\"); ws.on(\"open\", () => { ws.send(JSON.stringify({id:1, method:\"Page.reload\", params:{ignoreCache:true}})); ws.close(); });"; done'
+ExecStart=/bin/bash -c 'for ws in $(curl -s http://localhost:9222/json | jq -r ".[].webSocketDebuggerUrl"); do node -e "const WebSocket = require(\"ws\"); const ws = new WebSocket(\"$ws\"); ws.on(\"open\", () => { ws.send(JSON.stringify({id:1, method:\"Page.reload\", params:{ignoreCache:true}})); ws.close(); });"; done'
 Restart=always
 RestartSec=${REFRESHSEC}
 
