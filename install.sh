@@ -287,7 +287,7 @@ After=network-online.target
 
 [Service]
 Type=simple
-ExecStart=/bin/bash -c "apt update -y && apt upgrade -y && command -v npm >/dev/null 2>&1 && npm install -g ws@latest"
+ExecStart=/bin/bash -c "apt update -y && apt upgrade -y && if command -v npm >/dev/null 2>&1; then npm install -g ws@latest; fi"
 ExecStop=/bin/bash -c 'sleep 2 && echo "Installing Updates..." > /dev/tty1 && while kill -0 \$MAINPID; do sleep 1; done'
 TimeoutSec=3600
 TimeoutStopSec=3600
