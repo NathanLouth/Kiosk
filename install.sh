@@ -162,6 +162,7 @@ fi
 if [ -n "$REFRESHSEC" ]; then
 # Make browsers open with debugging
 mkdir -p "/home/kiosk/.config/kiosk-user-data"
+chmod kiosk:kiosk "/home/kiosk/.config/kiosk-user-data"
 BROWSER_FLAGS="$BROWSER_FLAGS --remote-debugging-port=9222 --user-data-dir=/home/kiosk/.config/kiosk-user-data"
 
 # Install software to talk with browser debugging
@@ -175,7 +176,7 @@ Description=Auto refresh browser
 After=multi-user.target
 
 [Service]
-ExecStart=/bin/bash -c 'for ws in $(curl -s http://localhost:9222/json | jq -r ".[].webSocketDebuggerUrl"); do node -e "const WebSocket = require(\"ws\"); const ws = new WebSocket(\"$ws\"); ws.on(\"open\", () => { ws.send(JSON.stringify({id:1, method:\"Page.reload\", params:{ignoreCache:true}})); ws.close(); });"; done'
+ExecStart=/bin/bash -c "for ws in \$(curl -s http://localhost:9222/json | jq -r '.[].webSocketDebuggerUrl'); do node -e \"const WebSocket = require('ws'); const ws = new WebSocket('\$ws'); ws.on('open', () => { ws.send(JSON.stringify({id:1, method:'Page.reload', params:{ignoreCache:true}})); ws.close(); });\"; done"
 Restart=always
 RestartSec=${REFRESHSEC}
 
