@@ -167,7 +167,7 @@ BROWSER_FLAGS="$BROWSER_FLAGS --remote-debugging-port=9222 --user-data-dir=/home
 
 # Install dependencies for browser debugging communication
 apt install -y nodejs npm
-npm install -g ws --yes
+npm install -g ws
 
 # Create auto-refresh service
 cat > /etc/systemd/system/kiosk-auto-refresh.service <<EOL
@@ -176,7 +176,7 @@ Description=Auto refresh browser
 After=multi-user.target
 
 [Service]
-ExecStart=/usr/bin/node -e "const http=require('http'),WebSocket=require('ws');http.get('http://localhost:9222/json',r=>{let d='';r.on('data',c=>d+=c);r.on('end',()=>{try{JSON.parse(d).forEach(p=>{if(p.webSocketDebuggerUrl){const ws=new WebSocket(p.webSocketDebuggerUrl);ws.on('open',()=>{ws.send(JSON.stringify({id:1,method:'Page.reload',params:{ignoreCache:true}}));ws.close();});}});}catch(e){console.error(e);}});}).on('error',e=>console.error(e));"
+ExecStart=/usr/bin/node -e "const http=require(\"http\"), WebSocket=require(\"ws\"); http.get(\"http://localhost:9222/json\", r => { let d=\"\"; r.on(\"data\", c => d+=c); r.on(\"end\", () => { try { JSON.parse(d).forEach(p => { if(p.webSocketDebuggerUrl){ const ws=new WebSocket(p.webSocketDebuggerUrl); ws.on(\"open\", () => { ws.send(JSON.stringify({id:1,method:\"Page.reload\",params:{ignoreCache:true}})); ws.close(); }); } }); } catch(e){ console.error(e); } }); }).on(\"error\", e => console.error(e));"
 Restart=always
 RestartSec=${REFRESHSEC}
 
