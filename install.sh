@@ -168,7 +168,7 @@ BROWSER_FLAGS="$BROWSER_FLAGS --remote-debugging-port=9222 --remote-debugging-ad
 
 # Install dependencies for browser debugging communication
 apt install -y nodejs npm
-npm install -g ws@latest
+npm install -g devtools-protocol@latest
 NPMUPDATE=" && npm update -g"
 
 # Create auto-refresh service
@@ -178,7 +178,7 @@ Description=Auto refresh browser
 After=multi-user.target
 
 [Service]
-ExecStart=/usr/bin/node -e "const http=require(\"http\"), WebSocket=require(\"ws\"); http.get(\"http://localhost:9222/json\", r => { let d=\"\"; r.on(\"data\", c => d+=c); r.on(\"end\", () => { try { JSON.parse(d).forEach(p => { if(p.webSocketDebuggerUrl){ const ws=new WebSocket(p.webSocketDebuggerUrl); ws.on(\"open\", () => { ws.send(JSON.stringify({id:1,method:\"Page.reload\",params:{ignoreCache:true}})); ws.close(); }); } }); } catch(e){ console.error(e); } }); }).on(\"error\", e => console.error(e));"
+ExecStart=/usr/bin/node -e "require('devtools-protocol')().then(async c=>{for(const t of (await c.Target.getTargets()).targetInfos)if(t.type==='page'){const p=await require('devtools-protocol')({target:t.targetId});await p.Page.enable();await p.Page.reload({ignoreCache:true});await p.close();}await c.close();})"
 Restart=always
 RestartSec=${REFRESHSEC}
 
