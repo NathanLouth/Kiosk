@@ -169,7 +169,7 @@ BROWSER_FLAGS="$BROWSER_FLAGS --remote-debugging-port=9222 --remote-debugging-ad
 # Install dependencies for browser debugging communication
 apt install -y nodejs npm
 npm install -g ws@latest
-NPMUPDATE=" && npm install -g ws@latest"
+NPMUPDATE=" && npm update -g"
 
 # Create auto-refresh service
 cat > /etc/systemd/system/kiosk-auto-refresh.service <<EOL
