@@ -160,11 +160,14 @@ if [ -n "$ADBLOCK" ]; then
     chmod 644 /etc/${BROWSERPOLICY}/policies/managed/adblock_policy.json
 fi
 
+#Set browser data folder
+mkdir -p "/home/kiosk/.config/kiosk-browser-data"
+chown kiosk:kiosk "/home/kiosk/.config/kiosk-browser-data"
+BROWSER_FLAGS="$BROWSER_FLAGS --user-data-dir=/home/kiosk/.config/kiosk-browser-data"
+
 if [ -n "$REFRESHSEC" ]; then
 # Configure browser to launch with debugging enabled
-mkdir -p "/home/kiosk/.config/kiosk-user-data"
-chown kiosk:kiosk "/home/kiosk/.config/kiosk-user-data"
-BROWSER_FLAGS="$BROWSER_FLAGS --remote-debugging-port=9222 --remote-debugging-address=127.0.0.1 --user-data-dir=/home/kiosk/.config/kiosk-user-data"
+BROWSER_FLAGS="$BROWSER_FLAGS --remote-debugging-port=9222 --remote-debugging-address=127.0.0.1"
 
 # Install dependencies for browser debugging communication
 apt install -y nodejs npm
