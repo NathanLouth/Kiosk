@@ -162,13 +162,13 @@ fi
 
 if [ -n "$REFRESHSEC" ]; then
 # Configure browser to launch with debugging enabled
-mkdir -p "/home/kiosk/.config/kiosk-browser-data"
-chown kiosk:kiosk "/home/kiosk/.config/kiosk-browser-data"
-BROWSER_FLAGS="$BROWSER_FLAGS --remote-debugging-port=9222 --remote-debugging-address=127.0.0.1 --user-data-dir=/home/kiosk/.config/kiosk-browser-data"
+mkdir -p "/home/kiosk/.config/kiosk-user-data"
+chown kiosk:kiosk "/home/kiosk/.config/kiosk-user-data"
+BROWSER_FLAGS="$BROWSER_FLAGS --remote-debugging-port=9222 --remote-debugging-address=127.0.0.1 --user-data-dir=/home/kiosk/.config/kiosk-user-data"
 
 # Install dependencies for browser debugging communication
 apt install -y nodejs npm
-npm install -g devtools-protocol@latest
+npm install -g ws@latest
 NPMUPDATE=" && npm update -g"
 
 # Create auto-refresh service
@@ -178,7 +178,7 @@ Description=Auto refresh browser
 After=multi-user.target
 
 [Service]
-ExecStart=/usr/bin/node -e "require('devtools-protocol')().then(async c=>{for(const t of (await c.Target.getTargets()).targetInfos)if(t.type==='page'){const p=await require('devtools-protocol')({target:t.targetId});await p.Page.enable();await p.Page.reload({ignoreCache:true});await p.close();}await c.close();})"
+ExecStart=/usr/bin/node -e "const http=require(\"http\"), WebSocket=require(\"ws\"); http.get(\"http://localhost:9222/json\", r => { let d=\"\"; r.on(\"data\", c => d+=c); r.on(\"end\", () => { try { JSON.parse(d).forEach(p => { if(p.webSocketDebuggerUrl){ const ws=new WebSocket(p.webSocketDebuggerUrl); ws.on(\"open\", () => { ws.send(JSON.stringify({id:1,method:\"Page.reload\",params:{ignoreCache:true}})); ws.close(); }); } }); } catch(e){ console.error(e); } }); }).on(\"error\", e => console.error(e));"
 Restart=always
 RestartSec=${REFRESHSEC}
 
