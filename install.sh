@@ -1,8 +1,9 @@
 #!/bin/bash
+set -euo pipefail
 
 # Script Settings/Arguments
 BROWSER="chromium"
-BROWSER_FLAGS=" --noerrdialogs --no-memcheck --no-first-run --start-maximized --disable --disable-translate --disable-infobars --disable-suggestions-service --disable-save-password-bubble --disable-session-crashed-bubble"
+BROWSER_FLAGS="--noerrdialogs --no-memcheck --no-first-run --start-maximized --disable --disable-translate --disable-infobars --disable-suggestions-service --disable-save-password-bubble --disable-session-crashed-bubble"
 URL=""
 CARD="0"
 DEVICE="0"
@@ -16,107 +17,59 @@ HIDECURSOR=""
 REFRESHSEC=""
 NPMUPDATE=""
 
-# Parse command-line arguments
+# --- Helpers ---
+usage() {
+    cat >&2 <<EOF
+Usage: $0 [options]
+
+Options:
+  --card X             Audio card number
+  --device X           Device number
+  --screen WxH         Screen resolution (e.g., 1920x1080)
+  --browser            {chrome|chromium|brave}
+  --url URL            Page to load
+  --auto-refresh SEC   Auto-refresh interval (seconds)
+  --auto-reboot MIN    Auto-reboot interval (minutes)
+  --auto-update        Enable auto-updates
+  --incognito          Launch in incognito mode
+  --kiosk              Launch in kiosk mode
+  --block-downloads    Block file downloads
+  --ad-block           Enable ad-block
+  --hide-cursor        Hide mouse cursor
+EOF
+    exit 1
+}
+
+require_number() {
+    [[ "$2" =~ ^[0-9]+$ ]] || { echo "Error: $1 must be a number" >&2; exit 1; }
+}
+
+require_resolution() {
+    [[ "$1" =~ ^[0-9]{3,4}x[0-9]{3,4}$ ]] || { echo "Error: Invalid resolution: $1" >&2; exit 1; }
+}
+
+# --- Parse command-line arguments ---
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --card)
-            if ! [[ "$2" =~ ^[0-9]+$ ]]; then
-                echo "Error: CARD must be a number" >&2
-                exit 1
-            fi
-            CARD="$2"
-            shift 2
-            ;;
-            
-        --device)
-            if ! [[ "$2" =~ ^[0-9]+$ ]]; then
-                echo "Error: DEVICE must be a number" >&2
-                exit 1
-            fi
-            DEVICE="$2"
-            shift 2
-            ;;
-
-        --auto-reboot)
-            if ! [[ "$2" =~ ^[0-9]+$ ]]; then
-                echo "Error: The --auto-reboot option requires a numeric value in minutes to specify the reboot delay after boot" >&2
-                exit 1
-            fi
-            AUTOREBOOT="REBOOT"
-            REBOOTMIN="$2"
-            shift 2
-            ;;
-            
-        --browser)
-            case "$2" in
-                chrome) BROWSER="google-chrome-stable" ;;
-                chromium) BROWSER="chromium" ;;
-                brave) BROWSER="brave-browser" ;;
-                *) 
-                    echo "Invalid browser specified. Must be either 'chrome', 'chromium', or 'brave'" >&2
-                    exit 1
-                    ;;
-            esac
-            shift 2
-            ;;
-            
-        --url)
-            URL=" $2"
-            shift 2
-            ;;
-     
-        --screen)
-            if ! [[ "$2" =~ ^[0-9]{3,4}x[0-9]{3,4}$ ]]; then
-                echo "Error: SCREEN must be a screen resolution eg 1920x1080" >&2
-                exit 1
-            fi
-            SCREEN_RESOLUTION="$2"
-            shift 2
-            ;;
-
-        --auto-refresh)
-            if ! [[ "$2" =~ ^[0-9]+$ ]]; then
-                echo "Error: The --auto-refresh option requires a numeric value (in seconds) to specify the refresh interval." >&2
-                exit 1
-            fi
-            REFRESHSEC="$2"
-            shift 2
-            ;;
-            
-        --incognito)
-            BROWSER_FLAGS="$BROWSER_FLAGS --incognito"
-            shift
-            ;;
-        
-        --kiosk)
-            BROWSER_FLAGS="$BROWSER_FLAGS --kiosk"
-            shift
-            ;;
-
-        --auto-update)
-            AUTOUPDATE="UPDATE"
-            shift
-            ;;
-
-        --block-downloads)
-            BLOCKDOWNLOADS="BLOCK"
-            shift
-            ;;
-        
-        --ad-block)
-            ADBLOCK="INSTALL"
-            shift
-            ;;
-
-        --hide-cursor)
-            HIDECURSOR="HIDE"
-            shift
-            ;;
-            
-        *)
-            echo "Usage: $0 [--card X] [--device X] [--screen X] [--browser X] [--url X] [--auto-refresh] [--auto-reboot X] [--auto-refresh X] [--auto-update] [--incognito] [--kiosk] [--block-downloads] [--ad-block] [--hide-cursor]" >&2
-            exit 1
-            ;;
+        --card)          require_number CARD "${2:-}"; CARD="$2"; shift 2 ;;
+        --device)        require_number DEVICE "${2:-}"; DEVICE="$2"; shift 2 ;;
+        --auto-reboot)   require_number "auto-reboot" "${2:-}"; AUTOREBOOT=REBOOT; REBOOTMIN="$2"; shift 2 ;;
+        --browser)       case "${2:-}" in
+                            chrome) BROWSER="google-chrome-stable" ;;
+                            chromium) BROWSER="chromium" ;;
+                            brave) BROWSER="brave-browser" ;;
+                            *) echo "Invalid browser: $2" >&2; exit 1 ;;
+                         esac; shift 2 ;;
+        --url)           URL="$2"; shift 2 ;;
+        --screen)        require_resolution "${2:-}"; SCREEN_RESOLUTION="$2"; shift 2 ;;
+        --auto-refresh)  require_number "auto-refresh" "${2:-}"; REFRESHSEC="$2"; shift 2 ;;
+        --incognito)     BROWSER_FLAGS+=" --incognito"; shift ;;
+        --kiosk)         BROWSER_FLAGS+=" --kiosk"; shift ;;
+        --auto-update)   AUTOUPDATE="UPDATE"; shift ;;
+        --block-downloads) BLOCKDOWNLOADS="BLOCK"; shift ;;
+        --ad-block)      ADBLOCK="INSTALL"; shift ;;
+        --hide-cursor)   HIDECURSOR="HIDE"; shift ;;
+        *)               usage ;;
     esac
 done
 
