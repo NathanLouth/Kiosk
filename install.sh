@@ -303,6 +303,7 @@ systemctl enable nftables
 
 # Update GRUB configuration
 sed -i 's/^GRUB_TIMEOUT=[0-9]*$/GRUB_TIMEOUT=0/' /etc/default/grub
+sed -i 's/^GRUB_CMDLINE_LINUX="/GRUB_CMDLINE_LINUX="quiet loglevel=0 rd.systemd.show_status=false console=tty3 vt.global_cursor_default=0 /' /etc/default/grub
 update-grub
 
 # Reboot system
