@@ -26,7 +26,7 @@ apt install -y wget
 Download the kiosk setup script using wget:
 
 ```bash
-wget https://raw.githubusercontent.com/NathanLouth/Kiosk/refs/heads/debian13/install.sh
+wget https://raw.githubusercontent.com/NathanLouth/Kiosk/debian13/install.sh
 ```
 
 ### Step 3: Make the Script Executable
