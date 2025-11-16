@@ -3,11 +3,12 @@ set -euo pipefail
 
 # Script Settings/Arguments
 BROWSER="chromium"
-BROWSER_FLAGS="--noerrdialogs --no-memcheck --no-first-run --start-maximized --disable --disable-translate --disable-infobars --disable-suggestions-service --disable-save-password-bubble --disable-session-crashed-bubble"
+BROWSER_FLAGS="--noerrdialogs --no-memcheck --no-first-run --start-maximized --disable --disable-translate --disable-infobars --disable-suggestions-service --disable-save-password-bubble --disable-session-crashed-bubble --ozone-platform=wayland --enable-features=UseOzonePlatform"
 URL=""
 CARD="0"
 DEVICE="0"
 SCREEN_RESOLUTION="1920x1080"
+SCREEN_SCALING="1"
 AUTOREBOOT=""
 REBOOTMIN="60"
 AUTOUPDATE=""
@@ -26,6 +27,7 @@ Options:
   --card X             Audio card number
   --device X           Device number
   --screen WxH         Screen resolution (e.g., 1920x1080)
+  --scale              Screen scaling factor (e.g., 1, 1.5, 2)
   --browser            {chrome|chromium|brave}
   --url URL            Page to load
   --auto-refresh SEC   Auto-refresh interval (seconds)
@@ -62,6 +64,7 @@ while [[ $# -gt 0 ]]; do
                          esac; shift 2 ;;
         --url)           URL="$2"; shift 2 ;;
         --screen)        require_resolution "${2:-}"; SCREEN_RESOLUTION="$2"; shift 2 ;;
+        --scale)         require_number "scale" "${2:-}"; SCREEN_SCALING="$2"; shift 2 ;;
         --auto-refresh)  require_number "auto-refresh" "${2:-}"; REFRESHSEC="$2"; shift 2 ;;
         --incognito)     BROWSER_FLAGS+=" --incognito"; shift ;;
         --kiosk)         BROWSER_FLAGS+=" --kiosk"; shift ;;
@@ -192,6 +195,7 @@ set \$mod none
 for_window [class=".*"] border pixel 0
 default_border none
 output * resolution $SCREEN_RESOLUTION
+output * scale $SCREEN_SCALING
 input * xkb_layout gb
 exec sh -c "$BROWSER $BROWSER_FLAGS $URL; sudo systemctl reboot"
 EOL

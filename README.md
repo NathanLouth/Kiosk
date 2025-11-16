@@ -69,6 +69,9 @@ The script supports the following optional command-line arguments for customizin
     --screen X
         Set the screen resolution e.g 1920x1080 (Default is 1920x1080)
 
+    --scale X
+        Set the screen scaling factor e.g., 1, 1.5, 2 (Default is 1)
+
     --auto-reboot X
         Enable auto reboot X should be a number in minutes (60 reboot every hour) (Default is disabled)
             
